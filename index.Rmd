@@ -1,0 +1,119 @@
+---
+title: "Machine Learning Final"
+author: "Michael Morgan"
+date: "March 26, 2016"
+output: html_document
+---
+
+
+
+```{r setup, include=FALSE}
+library(caret)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(dplyr)
+```
+
+## First we will download and load the relevant files. 
+
+
+
+```{r, cache=TRUE}
+trainurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+download.file(trainurl, "traindata.csv")
+download.file(testurl, "testdata.csv")
+testdat <- read.csv("testdata.csv", stringsAsFactors = FALSE)
+traindat <- read.csv("traindata.csv", stringsAsFactors = FALSE)
+```
+
+## Cross Validation & Data Slicing 
+
+First I will set a seed to keep the analysis traceable, and will partition the data into my own training and testing sets. I am doing this so I can first analyze the models on a sub-test set, and keep the final testing set as a validation set. 
+
+```{r pressure, echo=FALSE, cache=TRUE}
+set.seed(12345)
+mysamps <- createDataPartition(traindat$classe, p = 0.75, list=FALSE)
+mytrain <- traindat[mysamps,]
+mytest <- traindat[-mysamps,]
+```
+
+Some of the variables within the data set appear to be irrelavant to the prediction, and thus I am removing them from the start of the analsysis. These include in the participant name, ID, and the timestamps when the exercise occured. These are in the first five columns, and I will simply subset them out.
+
+```{r, cache=TRUE}
+mytrain <- mytrain[,8:160]
+mytest <- mytest[,8:160]
+testdat <- testdat[,8:160]
+```
+
+Using the View function in dplyr, I can see that there are a large number of NA datapoints within the loaded data set. Using sapply and dplyr's mutate function, I can see that there are some variables with a very high proportion of NA values. 
+
+```{r, cache=TRUE}
+na_count <- sapply(mytrain, function(y) sum(length(which(is.na(y)))))
+na_count <- as.data.frame(na_count)
+na_df <- mutate(na_count, proportion_na = na_count/14718)
+```
+
+As in the lectures, I've decided to use the near zero function in caret to remove these features, as applicable, if they have limited value for purposes of model building. dplyr will allow me to drop those fields which have limited analytical impacts from my training and test sets. I am also dropping them from the final test set. After that, I am changing the remaining NA fields to zero in all of the data sets. 
+
+```{r, cache=TRUE}
+nsv <- nearZeroVar(mytrain, names = TRUE)
+
+mytrain <- select(mytrain, -one_of(nsv))
+mytest <- select(mytest, -one_of(nsv))
+testdat <- select(testdat, -one_of(nsv))
+
+
+
+mytrain[is.na(mytrain)] <- 0
+mytest[is.na(mytest)] <- 0
+testdat[is.na(testdat)] <- 0
+
+mytrain$classe <- as.factor(mytrain$classe)
+mytest$classe <- as.factor(mytest$classe)
+
+```
+
+
+## Model Building 
+
+I will use two models to assess the data, Random Forests and predicting with Trees. 
+
+ plot(table(mytrain$classe))
+ 
+ ## Random Forest Model 
+ 
+``` {r, cache=TRUE}
+ randfor <- randomForest(classe~., data = mytrain, method = "class")
+        predforest <- predict(randfor, mytest, type = "class")
+        confusionMatrix(predforest, mytest$classe)
+```
+
+The accuracy of the random forest model is .9943, which means the out of sample error that I anticipate is approximately .0057 -- very low. 
+
+
+## Tree Model 
+
+```{r}
+treemod <- train(classe ~ ., method = "rpart", data = mytrain)
+print(treemod$finalModel)
+plot(treemod$finalModel, uniform = TRUE, main = "Classification Tree")
+text(treemod$finalModel, use.n=TRUE, all=TRUE, cex=.8)
+
+predtree <- predict(treemod, newdata = mytest)
+confusionMatrix(predtree, mytest$classe)
+
+```
+
+The accuracy of the tree model is .54, which means I would anticipate a fairly large out of sample error of .46. 
+
+## Selection of Final Model 
+
+Based on the accuracies described in the Confusion Matrices, I have chosen the Random Forest model as the most appropriate model for the final test. The accuracy is clearly superior. 
+
+
+```{r, cache=TRUE}
+answers <- predict(randfor, testdat, type = "class")
+print(answers)
+```
