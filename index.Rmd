@@ -90,13 +90,12 @@ I will use two models to assess the data, Random Forests and predicting with Tre
         confusionMatrix(predforest, mytest$classe)
 ```
 
-<<<<<<< HEAD
+
 The accuracy of the random forest model is .9943, which means the out of sample error that I anticipate is approximately .0057 -- very low. 
 
-=======
->>>>>>> 91e411d69a198725c51e1189ea3aded95865408d
 
-## Tree Model 
+
+##Tree Model 
 
 ```{r}
 treemod <- train(classe ~ ., method = "rpart", data = mytrain)
@@ -109,12 +108,12 @@ confusionMatrix(predtree, mytest$classe)
 
 ```
 
-<<<<<<< HEAD
-The accuracy of the tree model is .54, which means I would anticipate a fairly large out of sample error of .46. 
-=======
->>>>>>> 91e411d69a198725c51e1189ea3aded95865408d
 
-## Selection of Final Model 
+The accuracy of the tree model is .54, which means I would anticipate a fairly large out of sample error of .46. 
+
+
+
+##Selection of Final Model 
 
 Based on the accuracies described in the Confusion Matrices, I have chosen the Random Forest model as the most appropriate model for the final test. The accuracy is clearly superior. 
 
