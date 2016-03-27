@@ -116,18 +116,51 @@ $(document).ready(function () {
 </div>
 
 
-<div id="first-we-will-download-and-load-the-relevant-files." class="section level2">
-<h2>First we will download and load the relevant files.</h2>
+<p>Loading the libraries we’ll need for our analysis:</p>
+<pre class="r"><code>library(caret)</code></pre>
+<pre><code>## Loading required package: lattice
+## Loading required package: ggplot2</code></pre>
+<pre class="r"><code>library(randomForest)</code></pre>
+<pre><code>## randomForest 4.6-12
+## Type rfNews() to see new features/changes/bug fixes.
+## 
+## Attaching package: 'randomForest'
+## 
+## The following object is masked from 'package:ggplot2':
+## 
+##     margin</code></pre>
+<pre class="r"><code>library(rpart)
+library(rpart.plot)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:randomForest':
+## 
+##     combine
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div id="first-we-will-download-and-load-the-relevant-files." class="section level1">
+<h1>First we will download and load the relevant files.</h1>
 <pre class="r"><code>trainurl &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;
 testurl &lt;- &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;
 download.file(trainurl, &quot;traindata.csv&quot;)
 download.file(testurl, &quot;testdata.csv&quot;)
 testdat &lt;- read.csv(&quot;testdata.csv&quot;, stringsAsFactors = FALSE)
 traindat &lt;- read.csv(&quot;traindata.csv&quot;, stringsAsFactors = FALSE)</code></pre>
-</div>
 <div id="cross-validation-data-slicing" class="section level2">
 <h2>Cross Validation &amp; Data Slicing</h2>
 <p>First I will set a seed to keep the analysis traceable, and will partition the data into my own training and testing sets. I am doing this so I can first analyze the models on a sub-test set, and keep the final testing set as a validation set.</p>
+<pre class="r"><code>set.seed(12345)
+mysamps &lt;- createDataPartition(traindat$classe, p = 0.75, list=FALSE)
+mytrain &lt;- traindat[mysamps,]
+mytest &lt;- traindat[-mysamps,]</code></pre>
 <p>Some of the variables within the data set appear to be irrelavant to the prediction, and thus I am removing them from the start of the analsysis. These include in the participant name, ID, and the timestamps when the exercise occured. These are in the first five columns, and I will simply subset them out.</p>
 <pre class="r"><code>mytrain &lt;- mytrain[,8:160]
 mytest &lt;- mytest[,8:160]
@@ -263,6 +296,7 @@ print(answers)</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
 ##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
 ## Levels: A B C D E</code></pre>
+</div>
 </div>
 
 

@@ -5,9 +5,9 @@ date: "March 26, 2016"
 output: html_document
 ---
 
+Loading the libraries we'll need for our analysis: 
 
-
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 library(caret)
 library(randomForest)
 library(rpart)
@@ -15,9 +15,7 @@ library(rpart.plot)
 library(dplyr)
 ```
 
-## First we will download and load the relevant files. 
-
-
+#First we will download and load the relevant files. 
 
 ```{r, cache=TRUE}
 trainurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
@@ -32,7 +30,7 @@ traindat <- read.csv("traindata.csv", stringsAsFactors = FALSE)
 
 First I will set a seed to keep the analysis traceable, and will partition the data into my own training and testing sets. I am doing this so I can first analyze the models on a sub-test set, and keep the final testing set as a validation set. 
 
-```{r pressure, echo=FALSE, cache=TRUE}
+```{r pressure, echo=TRUE, cache=TRUE}
 set.seed(12345)
 mysamps <- createDataPartition(traindat$classe, p = 0.75, list=FALSE)
 mytrain <- traindat[mysamps,]
@@ -41,7 +39,7 @@ mytest <- traindat[-mysamps,]
 
 Some of the variables within the data set appear to be irrelavant to the prediction, and thus I am removing them from the start of the analsysis. These include in the participant name, ID, and the timestamps when the exercise occured. These are in the first five columns, and I will simply subset them out.
 
-```{r, cache=TRUE}
+```{r, cache=TRUE, include=TRUE}
 mytrain <- mytrain[,8:160]
 mytest <- mytest[,8:160]
 testdat <- testdat[,8:160]
@@ -49,7 +47,7 @@ testdat <- testdat[,8:160]
 
 Using the View function in dplyr, I can see that there are a large number of NA datapoints within the loaded data set. Using sapply and dplyr's mutate function, I can see that there are some variables with a very high proportion of NA values. 
 
-```{r, cache=TRUE}
+```{r, cache=TRUE, include=TRUE}
 na_count <- sapply(mytrain, function(y) sum(length(which(is.na(y)))))
 na_count <- as.data.frame(na_count)
 na_df <- mutate(na_count, proportion_na = na_count/14718)
@@ -57,7 +55,7 @@ na_df <- mutate(na_count, proportion_na = na_count/14718)
 
 As in the lectures, I've decided to use the near zero function in caret to remove these features, as applicable, if they have limited value for purposes of model building. dplyr will allow me to drop those fields which have limited analytical impacts from my training and test sets. I am also dropping them from the final test set. After that, I am changing the remaining NA fields to zero in all of the data sets. 
 
-```{r, cache=TRUE}
+```{r, cache=TRUE, include=TRUE}
 nsv <- nearZeroVar(mytrain, names = TRUE)
 
 mytrain <- select(mytrain, -one_of(nsv))
@@ -97,7 +95,7 @@ The accuracy of the random forest model is .9943, which means the out of sample 
 
 ##Tree Model 
 
-```{r}
+```{r, include=TRUE}
 treemod <- train(classe ~ ., method = "rpart", data = mytrain)
 print(treemod$finalModel)
 plot(treemod$finalModel, uniform = TRUE, main = "Classification Tree")
@@ -118,7 +116,9 @@ The accuracy of the tree model is .54, which means I would anticipate a fairly l
 Based on the accuracies described in the Confusion Matrices, I have chosen the Random Forest model as the most appropriate model for the final test. The accuracy is clearly superior. 
 
 
-```{r, cache=TRUE}
+```{r, cache=TRUE, echo=TRUE, include=TRUE}
 answers <- predict(randfor, testdat, type = "class")
 print(answers)
 ```
+
+
