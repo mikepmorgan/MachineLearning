@@ -15,7 +15,11 @@ library(rpart.plot)
 library(dplyr)
 ```
 
+
 #First we will download and load the relevant files. Please note that this data has been generously provided for public use. See citation.[^1]
+
+#First we will download and load the relevant files. 
+
 
 ```{r, cache=TRUE}
 trainurl <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
@@ -123,6 +127,7 @@ answers <- predict(randfor, testdat, type = "class")
 answers 
 ```
 
+
 The outputed answers, which I will submit for the final, are: 
 
 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
@@ -132,4 +137,5 @@ B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B
 ---
 
 [^1]: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+=======
 
