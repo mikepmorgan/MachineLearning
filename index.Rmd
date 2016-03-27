@@ -26,7 +26,7 @@ testdat <- read.csv("testdata.csv", stringsAsFactors = FALSE)
 traindat <- read.csv("traindata.csv", stringsAsFactors = FALSE)
 ```
 
-## Cross Validation & Data Slicing 
+##Cross Validation & Data Slicing 
 
 First I will set a seed to keep the analysis traceable, and will partition the data into my own training and testing sets. I am doing this so I can first analyze the models on a sub-test set, and keep the final testing set as a validation set. 
 
@@ -85,7 +85,7 @@ I will use two models to assess the data, Random Forests and predicting with Tre
 plot(table(mytrain$classe))
 ```
  
- ## Random Forest Model 
+##Random Forest Model 
  
 ``` {r, cache=TRUE}
  randfor <- randomForest(classe~., data = mytrain, method = "class")
@@ -95,7 +95,6 @@ plot(table(mytrain$classe))
 
 
 The accuracy of the random forest model is .9943, which means the out of sample error that I anticipate is approximately .0057 -- very low. 
-
 
 
 ##Tree Model 
@@ -112,8 +111,7 @@ confusionMatrix(predtree, mytest$classe)
 ```
 
 
-The accuracy of the tree model is .54, which means I would anticipate a fairly large out of sample error of .46. 
-
+The accuracy of the tree model is .54, which means I would anticipate a fairly large out of sample error of .46. This mdoel has significantly more error than the Random Forest model. 
 
 ###Selection of Final Model 
 
